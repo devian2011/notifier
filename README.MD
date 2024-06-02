@@ -5,9 +5,10 @@
 ### .env
 
 ```dotenv
-APP_HTTP_ADDR=:8080 #Http port
-APP_STORAGE_DSN=file://PWD/templates #Path for save templates into files
-APP_TRANSPORTS_CFG_PATH=./config/transports.yaml #Transports configurations
+APP_HTTP_ADDR=:8080 # Http port
+APP_STORAGE_DSN=file://PWD/templates # Path for save templates into files
+#APP_STORAGE_DSN=sqlite://PWD/templates.db # Path for save templates into sqlite
+APP_TRANSPORTS_CFG_PATH=./config/transports.yaml # Transports configurations
 ```
 
 ### transports.yaml
