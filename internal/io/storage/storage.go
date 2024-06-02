@@ -28,7 +28,10 @@ func Factory(dsnStr string) (handler.TemplateStorage, error) {
 
 	switch dsn.Scheme {
 	case "file":
-		return NewStorage(dsn), nil
+		return NewFileStorage(dsn), nil
+	case "sqlite":
+		return NewSqliteStorage(dsn)
+
 	default:
 		return nil, errors.New("unknown storage")
 	}

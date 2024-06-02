@@ -13,20 +13,20 @@ import (
 	"notifications/internal/dto"
 )
 
-type Storage struct {
+type FileStorage struct {
 	dsn *url.URL
 }
 
-func NewStorage(dsn *url.URL) *Storage {
-	return &Storage{dsn: dsn}
+func NewFileStorage(dsn *url.URL) *FileStorage {
+	return &FileStorage{dsn: dsn}
 }
 
-func (s *Storage) getFilePath(code string) string {
+func (s *FileStorage) getFilePath(code string) string {
 	code = strings.ReplaceAll(code, string(os.PathSeparator), "_")
 	return fmt.Sprintf("%s/%s.yml", s.dsn.Path, code)
 }
 
-func (s *Storage) List() ([]dto.MessageTmpl, error) {
+func (s *FileStorage) List() ([]dto.MessageTmpl, error) {
 	entries, entriesErr := os.ReadDir(s.dsn.Path)
 	if entriesErr != nil {
 		return nil, entriesErr
@@ -65,7 +65,7 @@ func (s *Storage) List() ([]dto.MessageTmpl, error) {
 	return result, nil
 }
 
-func (s *Storage) Load(code string) (dto.MessageTmpl, error) {
+func (s *FileStorage) Load(code string) (dto.MessageTmpl, error) {
 	msg := dto.MessageTmpl{}
 	file, fileErr := os.ReadFile(s.getFilePath(code))
 	if fileErr != nil {
@@ -77,7 +77,7 @@ func (s *Storage) Load(code string) (dto.MessageTmpl, error) {
 	return msg, uErr
 }
 
-func (s *Storage) Create(msg dto.MessageTmpl) error {
+func (s *FileStorage) Create(msg dto.MessageTmpl) error {
 	filePath := s.getFilePath(msg.Code)
 	if _, err := os.Stat(filePath); !errors.Is(err, os.ErrNotExist) {
 		return ErrMessageAlreadyExists
@@ -91,7 +91,7 @@ func (s *Storage) Create(msg dto.MessageTmpl) error {
 	return yaml.NewEncoder(file).Encode(msg)
 }
 
-func (s *Storage) Update(msg dto.MessageTmpl) error {
+func (s *FileStorage) Update(msg dto.MessageTmpl) error {
 	filePath := s.getFilePath(msg.Code)
 	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
 		return ErrMessageNotExists
@@ -105,6 +105,6 @@ func (s *Storage) Update(msg dto.MessageTmpl) error {
 	return yaml.NewEncoder(file).Encode(msg)
 }
 
-func (s *Storage) Rm(code string) error {
+func (s *FileStorage) Rm(code string) error {
 	return os.Remove(s.getFilePath(code))
 }
