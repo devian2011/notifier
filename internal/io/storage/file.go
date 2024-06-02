@@ -1,34 +1,33 @@
-package file
+package storage
 
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
-	
-	"github.com/kos-v/dsnparser"
+
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
 	"notifications/internal/dto"
-	"notifications/internal/io/storage"
 )
 
 type Storage struct {
-	dsn *dsnparser.DSN
+	dsn *url.URL
 }
 
-func NewStorage(dsn *dsnparser.DSN) *Storage {
+func NewStorage(dsn *url.URL) *Storage {
 	return &Storage{dsn: dsn}
 }
 
 func (s *Storage) getFilePath(code string) string {
 	code = strings.ReplaceAll(code, string(os.PathSeparator), "_")
-	return fmt.Sprintf("%s/%s.yml", s.dsn.GetPath(), code)
+	return fmt.Sprintf("%s/%s.yml", s.dsn.Path, code)
 }
 
 func (s *Storage) List() ([]dto.MessageTmpl, error) {
-	entries, entriesErr := os.ReadDir(s.dsn.GetPath())
+	entries, entriesErr := os.ReadDir(s.dsn.Path)
 	if entriesErr != nil {
 		return nil, entriesErr
 	}
@@ -44,7 +43,7 @@ func (s *Storage) List() ([]dto.MessageTmpl, error) {
 			logrus.WithField("error", fErr).Errorf("error on file info")
 			continue
 		}
-		filePath := fmt.Sprintf("%s/%s", s.dsn.GetPath(), fInfo.Name())
+		filePath := fmt.Sprintf("%s/%s", s.dsn.Path, fInfo.Name())
 
 		msg := dto.MessageTmpl{}
 		file, fileErr := os.ReadFile(filePath)
@@ -81,7 +80,7 @@ func (s *Storage) Load(code string) (dto.MessageTmpl, error) {
 func (s *Storage) Create(msg dto.MessageTmpl) error {
 	filePath := s.getFilePath(msg.Code)
 	if _, err := os.Stat(filePath); !errors.Is(err, os.ErrNotExist) {
-		return storage.ErrMessageAlreadyExists
+		return ErrMessageAlreadyExists
 	}
 	file, fileErr := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0755)
 	if fileErr != nil {
@@ -95,7 +94,7 @@ func (s *Storage) Create(msg dto.MessageTmpl) error {
 func (s *Storage) Update(msg dto.MessageTmpl) error {
 	filePath := s.getFilePath(msg.Code)
 	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
-		return storage.ErrMessageNotExists
+		return ErrMessageNotExists
 	}
 	file, fileErr := os.OpenFile(filePath, os.O_WRONLY, 0755)
 	if fileErr != nil {

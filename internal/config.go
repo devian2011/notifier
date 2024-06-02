@@ -3,15 +3,13 @@ package internal
 import (
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
-	"notifications/internal/io/storage/file"
+
 	"notifications/internal/io/web"
 )
 
 type Config struct {
-	Web     web.Config
-	Storage struct {
-		FileConfig *file.Config
-	}
+	Web                   web.Config
+	StorageDsn            string `env:"APP_STORAGE_DSN" envDefault:"file://PWD/templates"`
 	TransportsCfgFilePath string `env:"APP_TRANSPORTS_CFG_PATH" envDefault:"./config/transports.local.yaml"`
 }
 

@@ -2,9 +2,9 @@ package internal
 
 import (
 	"context"
+	"notifications/internal/io/storage"
 
 	"notifications/internal/handler"
-	"notifications/internal/io/storage/file"
 	"notifications/internal/io/transports"
 	"notifications/internal/io/web"
 )
@@ -34,7 +34,12 @@ func (a *App) Run() error {
 		return tCollectionInitErr
 	}
 
-	executor := handler.NewHandler(file.NewStorage(a.cfg.Storage.FileConfig), tCollection)
+	store, storeErr := storage.Factory(a.cfg.StorageDsn)
+	if storeErr != nil {
+		return storeErr
+	}
+
+	executor := handler.NewHandler(store, tCollection)
 
 	httpSrv := web.NewServer(&a.cfg.Web, executor.Handle)
 
