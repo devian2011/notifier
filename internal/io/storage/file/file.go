@@ -98,7 +98,7 @@ func (s *Storage) Create(msg dto.MessageTmpl) error {
 func (s *Storage) Update(msg dto.MessageTmpl) error {
 	filePath := s.getFilePath(msg.Code)
 	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
-		return storage.ErrMessageAlreadyExists
+		return storage.ErrMessageNotExists
 	}
 	file, fileErr := os.OpenFile(filePath, os.O_WRONLY, 0755)
 	if fileErr != nil {
