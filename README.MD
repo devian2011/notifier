@@ -28,7 +28,9 @@ file: # Block for file provider
     path: /dev/stdout #Output file
   file: # Transport code
     path: ./test.txt # Output file
-
+telegram:
+  tg:
+    token: # Bot token
 ```
 
 ## API

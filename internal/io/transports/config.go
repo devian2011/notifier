@@ -7,8 +7,9 @@ import (
 )
 
 type Config struct {
-	Smtp map[string]SmtpConfig `yaml:"smtp" json:"smtp"`
-	File map[string]FileConfig `yaml:"file" json:"file"`
+	Smtp     map[string]SmtpConfig     `yaml:"smtp" json:"smtp"`
+	File     map[string]FileConfig     `yaml:"file" json:"file"`
+	Telegram map[string]TelegramConfig `yaml:"telegram" json:"telegram"`
 }
 
 func loadConfigFromFile(filePath string) (*Config, error) {

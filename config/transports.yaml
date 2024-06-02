@@ -10,3 +10,7 @@ file:
     path: /dev/stdout
   file:
     path: ./test.txt
+telegram:
+  tg:
+    token:
+

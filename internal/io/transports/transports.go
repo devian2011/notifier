@@ -32,6 +32,10 @@ func NewCollection(filePath string) (*Collection, error) {
 		transports[smtpName] = &SmtpSender{cfg: &smtpCfg}
 	}
 
+	for tgName, tgCfg := range cfg.Telegram {
+		transports[tgName] = &TelegramSender{cfg: &tgCfg}
+	}
+
 	return &Collection{transports: transports}, nil
 }
 
