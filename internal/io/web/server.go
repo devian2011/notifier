@@ -30,6 +30,7 @@ func NewServer(cfg *Config, fn Handler) *Server {
 				data, err := fn(ctx.Path(), ctx.Request.Body())
 
 				ctx.SetStatusCode(http.StatusOK)
+				ctx.Response.Header.Add("Content-Type", "application/json")
 				json.NewEncoder(ctx.Response.BodyWriter()).Encode(struct {
 					Data  interface{} `json:"data"`
 					Error error       `json:"err"`

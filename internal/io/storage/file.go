@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
+	
+	"github.com/kos-v/dsnparser"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
@@ -13,25 +14,21 @@ import (
 	"notifications/internal/io/storage"
 )
 
-type Config struct {
-	Path string `json:"path" yaml:"path" env:"APP_STORAGE_FILE_PATH"`
-}
-
 type Storage struct {
-	cfg *Config
+	dsn *dsnparser.DSN
 }
 
-func NewStorage(cfg *Config) *Storage {
-	return &Storage{cfg: cfg}
+func NewStorage(dsn *dsnparser.DSN) *Storage {
+	return &Storage{dsn: dsn}
 }
 
 func (s *Storage) getFilePath(code string) string {
 	code = strings.ReplaceAll(code, string(os.PathSeparator), "_")
-	return fmt.Sprintf("%s/%s.yml", s.cfg.Path, code)
+	return fmt.Sprintf("%s/%s.yml", s.dsn.GetPath(), code)
 }
 
 func (s *Storage) List() ([]dto.MessageTmpl, error) {
-	entries, entriesErr := os.ReadDir(s.cfg.Path)
+	entries, entriesErr := os.ReadDir(s.dsn.GetPath())
 	if entriesErr != nil {
 		return nil, entriesErr
 	}
@@ -47,7 +44,7 @@ func (s *Storage) List() ([]dto.MessageTmpl, error) {
 			logrus.WithField("error", fErr).Errorf("error on file info")
 			continue
 		}
-		filePath := fmt.Sprintf("%s/%s", s.cfg.Path, fInfo.Name())
+		filePath := fmt.Sprintf("%s/%s", s.dsn.GetPath(), fInfo.Name())
 
 		msg := dto.MessageTmpl{}
 		file, fileErr := os.ReadFile(filePath)
