@@ -45,6 +45,12 @@ func (s *Queue) Add(message *dto.Message) (*dto.Message, *dto.Task, error) {
 		}
 	}
 
+	// If set new schedule
+	nextRun := now
+	if !message.Schedule.IsZero() {
+		nextRun = message.Schedule
+	}
+
 	task := &dto.Task{
 		ID:            generate.ID(),
 		MessageID:     message.ID,
@@ -60,7 +66,7 @@ func (s *Queue) Add(message *dto.Message) (*dto.Message, *dto.Task, error) {
 		LockUntil: time.Time{},
 		CreatedAt: now,
 		LastRun:   time.Time{},
-		NextRun:   now,
+		NextRun:   nextRun,
 	}
 
 	if !message.Deadline.IsZero() {
